@@ -1,0 +1,156 @@
+@model MercadoPagoCheckoutViewModel
+
+@{
+    ViewData["Title"] = "Pagar con Mercado Pago";
+}
+
+<h1>Pagar con Mercado Pago</h1>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">Checkout</dt>
+            <dd class="col-sm-8">#@Model.CheckoutId</dd>
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8" id="mp-estado">Consultando...</dd>
+        </dl>
+    </div>
+</div>
+
+<a href="@Model.CheckoutUrl" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="mp-open-link">
+    Abrir Mercado Pago
+</a>
+<a asp-controller="Carrito" asp-action="Index" class="btn btn-secondary" id="mp-back-link">
+    Volver al carrito
+</a>
+
+@section Scripts {
+    <script>
+        const checkoutUrl = @Json.Serialize(Model.CheckoutUrl);
+        const checkoutId = "@Model.CheckoutId";
+
+        let popup = null;
+        let closedHandled = false;
+        let statusTimer = null;
+        let closeTimer = null;
+        let seguimientoIniciado = false;
+
+        function iniciarSeguimientoCierre() {
+            if (seguimientoIniciado) {
+                return;
+            }
+
+            seguimientoIniciado = true;
+            closeTimer = setInterval(function () {
+                if (popup && popup.closed && !closedHandled) {
+                    closedHandled = true;
+                    clearInterval(closeTimer);
+                    clearInterval(statusTimer);
+                    window.location.href = '/Carrito/Index';
+                }
+            }, 500);
+        }
+
+        function abrirMercadoPago() {
+            if (popup && !popup.closed) {
+                return popup;
+            }
+
+            popup = window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
+            if (popup) {
+                iniciarSeguimientoCierre();
+            }
+
+            return popup;
+        }
+
+        async function consultarEstado() {
+            try {
+                const response = await fetch(`/api/mercadopago/checkout/${checkoutId}/estado`, {
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                const estado = document.getElementById('mp-estado');
+                if (estado) {
+                    estado.textContent = data.estadoPago || 'Pendiente';
+                }
+
+                if (data.estadoPago === 'Aprobado' ||
+                    data.estadoPago === 'Rechazado' ||
+                    data.estadoPago === 'Cancelado' ||
+                    data.estadoPago === 'Reembolsado' ||
+                    data.estadoPago === 'Fallido' ||
+                    data.estadoPago === 'Expirado') {
+                    clearInterval(statusTimer);
+                    clearInterval(closeTimer);
+
+                    if (popup && !popup.closed) {
+                        popup.close();
+                    }
+
+                    const aprobado = data.estadoPago === 'Aprobado';
+                    await Swal.fire({
+                        icon: aprobado ? 'success' : 'warning',
+                        title: aprobado ? 'Pago aprobado' : 'Pago no completado',
+                        text: aprobado
+                            ? 'Tu pago fue aprobado correctamente.'
+                            : 'El pago no fue aprobado o quedó pendiente.'
+                    });
+
+                    if (data.pedidoId) {
+                        window.location.href = `/Pedidos/Details/${data.pedidoId}`;
+                    } else {
+                        window.location.href = '/Carrito/Index';
+                    }
+                }
+            } catch (error) {
+            }
+        }
+
+        const openLink = document.getElementById('mp-open-link');
+        if (openLink) {
+            openLink.addEventListener('click', function (event) {
+                event.preventDefault();
+                abrirMercadoPago();
+            });
+        }
+
+        const backLink = document.getElementById('mp-back-link');
+        if (backLink) {
+            backLink.addEventListener('click', async function (event) {
+                event.preventDefault();
+
+                try {
+                    const response = await fetch(`/api/mercadopago/checkout/${checkoutId}/estado`, {
+                        credentials: 'same-origin'
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.estadoPago === 'Aprobado' && data.pedidoId) {
+                            window.location.href = `/Pedidos/Details/${data.pedidoId}`;
+                            return;
+                        }
+                    }
+                } catch (error) {
+                }
+
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Pago cancelado',
+                    text: 'El pago no se completó. El carrito sigue disponible.'
+                });
+
+                window.location.href = '/Carrito/Index';
+            });
+        }
+
+        const autoPopup = abrirMercadoPago();
+        statusTimer = setInterval(consultarEstado, 2000);
+    </script>
+}

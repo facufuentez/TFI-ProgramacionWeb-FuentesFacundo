@@ -1,0 +1,58 @@
+@model PaginationViewModel
+
+@{
+    string CrearUrl(int page)
+    {
+        var values = new Microsoft.AspNetCore.Routing.RouteValueDictionary();
+        foreach (var item in Model.RouteValues)
+        {
+            values[item.Key] = item.Value;
+        }
+
+        values["page"] = page;
+        return Url.Action(Model.Action, Model.Controller, values) ?? "#";
+    }
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center mt-4">
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                @if (Model.HasPreviousPage)
+                {
+                    <a class="page-link" href="@CrearUrl(Model.PageIndex - 1)">Anterior</a>
+                }
+                else
+                {
+                    <span class="page-link">Anterior</span>
+                }
+            </li>
+
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    @if (i == Model.PageIndex)
+                    {
+                        <span class="page-link">@i</span>
+                    }
+                    else
+                    {
+                        <a class="page-link" href="@CrearUrl(i)">@i</a>
+                    }
+                </li>
+            }
+
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                @if (Model.HasNextPage)
+                {
+                    <a class="page-link" href="@CrearUrl(Model.PageIndex + 1)">Siguiente</a>
+                }
+                else
+                {
+                    <span class="page-link">Siguiente</span>
+                }
+            </li>
+        </ul>
+    </nav>
+}

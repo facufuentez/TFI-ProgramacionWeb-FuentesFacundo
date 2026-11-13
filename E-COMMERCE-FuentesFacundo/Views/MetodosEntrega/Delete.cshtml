@@ -1,0 +1,41 @@
+@model E_COMMERCE_FuentesFacundo.Models.Entities.MetodoEntrega
+
+@{
+    ViewData["Title"] = "Eliminar Método de Entrega";
+}
+
+<h1>Eliminar Método de Entrega</h1>
+
+<h3>¿Está seguro que desea eliminar este método de entrega?</h3>
+
+@if (Model.Pedidos.Any())
+{
+    <div class="alert alert-warning">
+        Este método de entrega tiene @Model.Pedidos.Count pedido(s) asociado(s). No se podrá eliminar mientras existan pedidos que lo utilicen.
+    </div>
+}
+
+<div>
+    <h4>Método de Entrega</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Nombre)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Nombre)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Costo)
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Costo.ToString("C")
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="IdMetodoEntrega" />
+        <input type="submit" value="Eliminar" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Volver al Listado</a>
+    </form>
+</div>

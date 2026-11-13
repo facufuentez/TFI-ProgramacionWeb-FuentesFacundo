@@ -1,0 +1,55 @@
+@model IEnumerable<E_COMMERCE_FuentesFacundo.Models.Entities.Categoria>
+
+@{
+    ViewData["Title"] = "Categorías";
+}
+
+<h1>Categorías</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear Nueva Categoría</a>
+</p>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Productos</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (!Model.Any())
+    {
+        <tr>
+            <td colspan="4" class="text-center text-muted">No hay categorías registradas.</td>
+        </tr>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Nombre</td>
+                <td>@item.Descripcion</td>
+                <td>@item.Productos.Count</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.IdCategoria" class="btn btn-info btn-sm">Detalles</a>
+                    <a asp-action="Edit" asp-route-id="@item.IdCategoria" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.IdCategoria" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>

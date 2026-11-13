@@ -1,0 +1,36 @@
+@model E_COMMERCE_FuentesFacundo.Models.Entities.Categoria
+
+@{
+    ViewData["Title"] = "Detalles de la Categoría";
+}
+
+<h1>Detalles</h1>
+
+<div>
+    <h4>Categoría</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Nombre)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Nombre)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Descripcion)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Descripcion)
+        </dd>
+        <dt class="col-sm-2">
+            Productos
+        </dt>
+        <dd class="col-sm-10">
+            @Model.Productos.Count
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.IdCategoria" class="btn btn-warning">Editar</a>
+    <a asp-action="Index" class="btn btn-secondary">Volver al Listado</a>
+</div>

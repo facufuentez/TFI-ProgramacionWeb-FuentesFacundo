@@ -1,0 +1,72 @@
+@using E_COMMERCE_FuentesFacundo.Models.Entities
+@model Auditoria
+
+@{
+    ViewData["Title"] = "Auditoría #" + Model.IdAuditoria;
+    var antes = ViewData["Antes"] as string;
+    var despues = ViewData["Despues"] as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Auditoría #@Model.IdAuditoria</h1>
+    <a asp-action="Index" class="btn btn-secondary">Volver a auditoría</a>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">Detalle</div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Fecha</dt>
+            <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</dd>
+
+            <dt class="col-sm-3">Usuario</dt>
+            <dd class="col-sm-9">
+                @if (Model.Usuario != null)
+                {
+                    <span>@Model.Usuario.Nombre @Model.Usuario.Apellido (@Model.Usuario.Email)</span>
+                }
+                else
+                {
+                    <span>@Model.IdUsuario</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Acción</dt>
+            <dd class="col-sm-9">@Model.Accion</dd>
+
+            <dt class="col-sm-3">Entidad</dt>
+            <dd class="col-sm-9">@Model.Entidad</dd>
+
+            <dt class="col-sm-3">Id entidad</dt>
+            <dd class="col-sm-9">@(Model.IdEntidad ?? "-")</dd>
+
+            <dt class="col-sm-3">IP</dt>
+            <dd class="col-sm-9">@(Model.Ip ?? "-")</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Valores anteriores</h4>
+        @if (string.IsNullOrWhiteSpace(antes))
+        {
+            <p class="text-muted">Sin datos.</p>
+        }
+        else
+        {
+            <pre class="border rounded p-3">@antes</pre>
+        }
+    </div>
+    <div class="col-md-6">
+        <h4>Valores nuevos</h4>
+        @if (string.IsNullOrWhiteSpace(despues))
+        {
+            <p class="text-muted">Sin datos.</p>
+        }
+        else
+        {
+            <pre class="border rounded p-3">@despues</pre>
+        }
+    </div>
+</div>

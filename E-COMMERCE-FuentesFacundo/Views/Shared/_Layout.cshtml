@@ -1,0 +1,213 @@
+﻿@inject E_COMMERCE_FuentesFacundo.Services.CartService Cart
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var homeActive = currentController == "Home" && currentAction == "Index" ? "active" : "";
+    var cartActive = currentController == "Carrito" ? "active" : "";
+    var pedidosActive = currentController == "Pedidos" ? "active" : "";
+    var cuentaActive = currentController == "Account" && currentAction == "Profile" ? "active" : "";
+    var direccionesActive = currentController == "Direcciones" ? "active" : "";
+    var pedidosAdminActive = currentController == "PedidosAdmin" ? "active" : "";
+    var usuariosActive = currentController == "Usuarios" ? "active" : "";
+    var auditoriasActive = currentController == "Auditorias" ? "active" : "";
+    var reportesActive = currentController == "Reportes" ? "active" : "";
+    var productosActive = currentController == "Productos" && currentAction == "Index" ? "active" : "";
+    var categoriasActive = currentController == "Categorias" ? "active" : "";
+    var metodosActive = currentController == "MetodosEntrega" ? "active" : "";
+    var loginActive = currentController == "Account" && currentAction == "Login" ? "active" : "";
+    var registerActive = currentController == "Account" && currentAction == "Register" ? "active" : "";
+    var privacidadActive = currentController == "Home" && currentAction == "Privacy" ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - E_COMMERCE_FuentesFacundo</title>
+    <script type="importmap"></script>
+    <script>
+        (function () {
+            try {
+                var guardado = localStorage.getItem('theme');
+                if (guardado === 'dark' || guardado === 'light') {
+                    document.documentElement.setAttribute('data-bs-theme', guardado);
+                }
+            } catch (e) {
+            }
+        })();
+    </script>
+    <link rel="stylesheet" href="~/lib/bootswatch/zephyr/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/fontawesome/css/all.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        .sidebar-brand img,
+        .topbar-brand img {
+            width: auto;
+            max-width: 100%;
+        }
+
+        .sidebar-brand img {
+            height: clamp(40px, 5vw, 72px);
+        }
+
+        .topbar-brand img {
+            height: clamp(28px, 6vw, 40px);
+        }
+
+        .theme-icon-light {
+            color: #000;
+        }
+
+        .theme-icon-dark {
+            color: #fff;
+        }
+
+        #sidebarToggle i {
+            font-size: 1.25rem;
+            color: var(--bs-body-color);
+        }
+
+        .logo-dark {
+            display: none;
+        }
+
+        [data-bs-theme="dark"] .logo-light {
+            display: none;
+        }
+
+        [data-bs-theme="dark"] .logo-dark {
+            display: inline-block;
+        }
+    </style>
+    <link rel="stylesheet" href="~/E_COMMERCE_FuentesFacundo.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-header">
+                <a class="sidebar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/LogoCasaVape.png" alt="Casa Vape" class="logo-light" asp-append-version="true" />
+                    <img src="~/images/LogoCasaVape-blanco.png" alt="Casa Vape" class="logo-dark" asp-append-version="true" />
+                </a>
+                <button type="button" class="btn-close d-lg-none" id="sidebarClose" aria-label="Cerrar menú"></button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <span class="sidebar-heading">General</span>
+                <a class="sidebar-link @homeActive" asp-controller="Home" asp-action="Index">Inicio</a>
+                <a class="sidebar-link @cartActive" asp-controller="Carrito" asp-action="Index">
+                    <span>Carrito</span>
+                    <span class="badge bg-primary rounded-pill">@Cart.TotalQuantity()</span>
+                </a>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="sidebar-heading">Mi cuenta</span>
+                    <a class="sidebar-link @pedidosActive" asp-controller="Pedidos" asp-action="Index">Mis pedidos</a>
+                    <a class="sidebar-link @cuentaActive" asp-controller="Account" asp-action="Profile">Mi cuenta</a>
+                    <a class="sidebar-link @direccionesActive" asp-controller="Direcciones" asp-action="Index">Mis direcciones</a>
+                }
+                else
+                {
+                    <span class="sidebar-heading">Cuenta</span>
+                    <a class="sidebar-link @loginActive" asp-controller="Account" asp-action="Login">Iniciar sesión</a>
+                    <a class="sidebar-link @registerActive" asp-controller="Account" asp-action="Register">Registrarse</a>
+                }
+
+                @if (User.IsInRole("Administrador"))
+                {
+                    <span class="sidebar-heading">Administración</span>
+                    <a class="sidebar-link @pedidosAdminActive" asp-controller="PedidosAdmin" asp-action="Index">Pedidos</a>
+                    <a class="sidebar-link @productosActive" asp-controller="Productos" asp-action="Index">Productos</a>
+                    <a class="sidebar-link @categoriasActive" asp-controller="Categorias" asp-action="Index">Categorías</a>
+                    <a class="sidebar-link @metodosActive" asp-controller="MetodosEntrega" asp-action="Index">Métodos de entrega</a>
+                    <a class="sidebar-link @usuariosActive" asp-controller="Usuarios" asp-action="Index">Usuarios</a>
+                    <a class="sidebar-link @auditoriasActive" asp-controller="Auditorias" asp-action="Index">Auditoría</a>
+                    <a class="sidebar-link @reportesActive" asp-controller="Reportes" asp-action="Pedidos">Reportes</a>
+                }
+
+                <span class="sidebar-heading">Información</span>
+                <a class="sidebar-link @privacidadActive" asp-controller="Home" asp-action="Privacy">Privacidad</a>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0 mt-2">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="sidebar-link">Cerrar sesión</button>
+                    </form>
+                }
+            </nav>
+        </aside>
+
+        <div class="app-overlay" id="sidebarOverlay"></div>
+
+        <div class="app-main">
+            <header class="app-topbar">
+                <button type="button" class="btn btn-outline-secondary d-lg-none" id="sidebarToggle" aria-label="Abrir menú">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                </button>
+
+                <a class="topbar-brand d-lg-none" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/LogoCasaVape.png" alt="Casa Vape" class="logo-light" asp-append-version="true" />
+                    <img src="~/images/LogoCasaVape-blanco.png" alt="Casa Vape" class="logo-dark" asp-append-version="true" />
+                </a>
+
+                <form class="search-form" asp-controller="Home" asp-action="Index" method="get" role="search">
+                    <input class="form-control" type="search" name="q" value="@Context.Request.Query["q"]"
+                           placeholder="Buscar productos..." aria-label="Buscar productos" />
+                    <button class="btn btn-primary" type="submit">Buscar</button>
+                </form>
+
+                <button type="button" class="btn btn-outline-secondary flex-shrink-0 ms-auto" id="themeToggle"
+                        aria-label="Cambiar a modo oscuro" title="Cambiar a modo oscuro">
+                    <i class="fa-solid fa-sun theme-icon-light" aria-hidden="true"></i>
+                    <i class="fa-solid fa-moon theme-icon-dark" aria-hidden="true"></i>
+                </button>
+            </header>
+
+            <main role="main" class="app-content">
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                &copy; 2026 - E_COMMERCE_FuentesFacundo
+            </footer>
+        </div>
+    </div>
+
+    @await Html.PartialAsync("_Chatbot")
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    @if (TempData["Success"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: @Json.Serialize(TempData["Success"])
+                });
+            });
+        </script>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @Json.Serialize(TempData["Error"])
+                });
+            });
+        </script>
+    }
+</body>
+</html>

@@ -1,0 +1,104 @@
+@model PaginatedList<E_COMMERCE_FuentesFacundo.Models.Entities.Pedido>
+
+@{
+    ViewData["Title"] = "Pedidos";
+    var busqueda = ViewData["q"] as string;
+    var estadoSel = ViewData["Estado"] as string;
+
+    var paginacion = new PaginationViewModel
+    {
+        PageIndex = Model.PageIndex,
+        TotalPages = Model.TotalPages,
+        HasPreviousPage = Model.HasPreviousPage,
+        HasNextPage = Model.HasNextPage,
+        Action = "Index",
+        Controller = "PedidosAdmin",
+        RouteValues = new Dictionary<string, string?>
+        {
+            ["q"] = busqueda,
+            ["estado"] = estadoSel
+        }
+    };
+}
+
+<h1>Pedidos</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form method="get" asp-action="Index" class="row g-2 mb-3">
+    <div class="col-md-5">
+        <input type="search" name="q" value="@busqueda" class="form-control"
+               placeholder="Buscar por Nº, cliente o email" aria-label="Buscar pedidos" />
+    </div>
+    <div class="col-md-3">
+        <select name="estado" asp-items="ViewBag.Estados" class="form-select" aria-label="Estado">
+            <option value="">Todos los estados</option>
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a asp-action="Index" class="btn btn-secondary">Limpiar</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay pedidos que coincidan con los filtros.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Nº</th>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Entrega</th>
+                    <th>Pago</th>
+                    <th>Total</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var pedido in Model)
+            {
+                var total = pedido.DetallesPedido.Sum(d => d.Cantidad * d.PrecioUnitario) + pedido.CostoEnvio;
+                var pago = pedido.Pagos.OrderByDescending(p => p.IdPago).FirstOrDefault();
+                <tr>
+                    <td>#@pedido.IdPedido</td>
+                    <td>@pedido.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (pedido.Usuario != null)
+                        {
+                            <div>@pedido.Usuario.Nombre @pedido.Usuario.Apellido</div>
+                            <div class="text-muted small">@pedido.Usuario.Email</div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">-</span>
+                        }
+                    </td>
+                    <td>@(pedido.EstadoPedido?.Nombre ?? "-")</td>
+                    <td>@(pedido.MetodoEntrega?.Nombre ?? "-")</td>
+                    <td>@(pago?.EstadoPago ?? "-")</td>
+                    <td>$@total.ToString("N2")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@pedido.IdPedido" class="btn btn-info btn-sm">Detalles</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" model="paginacion" />
+}

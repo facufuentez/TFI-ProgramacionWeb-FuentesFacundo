@@ -1,0 +1,97 @@
+@model IEnumerable<E_COMMERCE_FuentesFacundo.Models.Entities.Direccion>
+
+@{
+    ViewData["Title"] = "Mis direcciones";
+    var activas = Model.Where(d => d.Activa).ToList();
+    var inactivas = Model.Where(d => !d.Activa).ToList();
+}
+
+<h1>Mi cuenta</h1>
+
+<partial name="_AccountNav" />
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Mis direcciones</h3>
+    <a asp-action="Create" class="btn btn-primary">Agregar dirección</a>
+</div>
+
+<h5>Direcciones activas</h5>
+@if (!activas.Any())
+{
+    <p class="text-muted">No tenés direcciones activas registradas.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Calle</th>
+                <th>Número</th>
+                <th>Ciudad</th>
+                <th>Código Postal</th>
+                <th>Provincia</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in activas)
+        {
+            <tr>
+                <td>@item.Calle</td>
+                <td>@item.Numero</td>
+                <td>@item.Ciudad</td>
+                <td>@item.CodigoPostal</td>
+                <td>@(item.Provincia?.Nombre ?? "-")</td>
+                <td class="text-end">
+                    <a asp-action="Edit" asp-route-id="@item.IdDireccion" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.IdDireccion" class="btn btn-danger btn-sm">Desactivar</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@if (inactivas.Any())
+{
+    <h5 class="mt-4">Direcciones desactivadas</h5>
+    <table class="table table-sm align-middle">
+        <thead>
+            <tr>
+                <th>Calle</th>
+                <th>Número</th>
+                <th>Ciudad</th>
+                <th>Código Postal</th>
+                <th>Provincia</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in inactivas)
+        {
+            <tr class="text-muted">
+                <td>@item.Calle</td>
+                <td>@item.Numero</td>
+                <td>@item.Ciudad</td>
+                <td>@item.CodigoPostal</td>
+                <td>@(item.Provincia?.Nombre ?? "-")</td>
+                <td class="text-end">
+                    <form asp-action="Reactivate" asp-route-id="@item.IdDireccion" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-success btn-sm">Reactivar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,93 @@
+@model ReportePedidosViewModel
+
+@{
+    ViewData["Title"] = "Reporte de pedidos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">Reporte de pedidos</h1>
+</div>
+
+<form method="get" asp-action="Pedidos" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label" for="desde">Desde</label>
+            <input class="form-control" type="date" id="desde" name="desde" value="@Model.Desde?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="hasta">Hasta</label>
+            <input class="form-control" type="date" id="hasta" name="hasta" value="@Model.Hasta?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="estado">Estado</label>
+            <select class="form-select" id="estado" name="estado" asp-items="ViewBag.Estados">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <button type="submit" class="btn btn-danger"
+                    formaction="@Url.Action("DescargarPedidosPdf", "Reportes")">
+                Descargar PDF
+            </button>
+        </div>
+    </div>
+</form>
+
+@if (!Model.Pedidos.Any())
+{
+    <div class="alert alert-info">No hay pedidos que coincidan con los filtros.</div>
+}
+else
+{
+    <div class="d-flex justify-content-between mb-2">
+        <span>Pedidos: <strong>@Model.Pedidos.Count</strong></span>
+        <span>Total: <strong>$@Model.Total.ToString("N2")</strong></span>
+    </div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Nº</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Estado</th>
+                <th>Entrega</th>
+                <th>Pago</th>
+                <th class="text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var pedido in Model.Pedidos)
+        {
+            var pago = pedido.Pagos.OrderByDescending(p => p.IdPago).FirstOrDefault();
+            var total = pedido.DetallesPedido.Sum(d => d.Cantidad * d.PrecioUnitario) + pedido.CostoEnvio;
+            <tr>
+                <td>#@pedido.IdPedido</td>
+                <td>@pedido.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    @if (pedido.Usuario != null)
+                    {
+                        <div>@pedido.Usuario.Nombre @pedido.Usuario.Apellido</div>
+                        <div class="text-muted small">@pedido.Usuario.Email</div>
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
+                <td>@(pedido.EstadoPedido?.Nombre ?? "-")</td>
+                <td>@(pedido.MetodoEntrega?.Nombre ?? "-")</td>
+                <td>@(pago?.EstadoPago ?? "-")</td>
+                <td class="text-end">$@total.ToString("N2")</td>
+            </tr>
+        }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="6" class="text-end">Total general</th>
+                <th class="text-end">$@Model.Total.ToString("N2")</th>
+            </tr>
+        </tfoot>
+    </table>
+}

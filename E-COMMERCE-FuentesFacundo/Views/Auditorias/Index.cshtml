@@ -1,0 +1,119 @@
+@model PaginatedList<E_COMMERCE_FuentesFacundo.Models.Entities.Auditoria>
+
+@{
+    ViewData["Title"] = "Auditoría";
+
+    var usuarioSel = ViewData["Usuario"] as string;
+    var entidadSel = ViewData["Entidad"] as string;
+    var accionSel = ViewData["Accion"] as string;
+    var desde = ViewData["Desde"] as string;
+    var hasta = ViewData["Hasta"] as string;
+    var entidades = ViewBag.Entidades as List<string> ?? new List<string>();
+    var acciones = ViewBag.Acciones as List<string> ?? new List<string>();
+
+    var paginacion = new PaginationViewModel
+    {
+        PageIndex = Model.PageIndex,
+        TotalPages = Model.TotalPages,
+        HasPreviousPage = Model.HasPreviousPage,
+        HasNextPage = Model.HasNextPage,
+        Action = "Index",
+        Controller = "Auditorias",
+        RouteValues = new Dictionary<string, string?>
+        {
+            ["usuario"] = usuarioSel,
+            ["entidad"] = entidadSel,
+            ["accion"] = accionSel,
+            ["desde"] = desde,
+            ["hasta"] = hasta
+        }
+    };
+}
+
+<h1>Auditoría</h1>
+
+<form method="get" asp-action="Index" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <input type="search" name="usuario" value="@usuarioSel" class="form-control"
+               placeholder="Usuario (nombre o email)" aria-label="Usuario" />
+    </div>
+    <div class="col-md-2">
+        <select name="entidad" class="form-select" aria-label="Entidad">
+            <option value="">Todas las entidades</option>
+            @foreach (var entidad in entidades)
+            {
+                <option value="@entidad" selected="@(entidad == entidadSel ? "selected" : null)">@entidad</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select name="accion" class="form-select" aria-label="Acción">
+            <option value="">Todas las acciones</option>
+            @foreach (var accion in acciones)
+            {
+                <option value="@accion" selected="@(accion == accionSel ? "selected" : null)">@accion</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="desde" value="@desde" class="form-control" aria-label="Desde" />
+    </div>
+    <div class="col-md-2">
+        <input type="date" name="hasta" value="@hasta" class="form-control" aria-label="Hasta" />
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a asp-action="Index" class="btn btn-secondary">Limpiar</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay registros de auditoría que coincidan con los filtros.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Entidad</th>
+                    <th>Id</th>
+                    <th>IP</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var auditoria in Model)
+            {
+                <tr>
+                    <td>@auditoria.Fecha.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td>
+                        @if (auditoria.Usuario != null)
+                        {
+                            <div>@auditoria.Usuario.Nombre @auditoria.Usuario.Apellido</div>
+                            <div class="text-muted small">@auditoria.Usuario.Email</div>
+                        }
+                        else
+                        {
+                            <span class="text-muted">@auditoria.IdUsuario</span>
+                        }
+                    </td>
+                    <td>@auditoria.Accion</td>
+                    <td>@auditoria.Entidad</td>
+                    <td>@(auditoria.IdEntidad ?? "-")</td>
+                    <td>@(auditoria.Ip ?? "-")</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@auditoria.IdAuditoria" class="btn btn-info btn-sm">Detalles</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" model="paginacion" />
+}

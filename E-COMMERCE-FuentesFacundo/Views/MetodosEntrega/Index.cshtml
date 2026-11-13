@@ -1,0 +1,55 @@
+@model IEnumerable<E_COMMERCE_FuentesFacundo.Models.Entities.MetodoEntrega>
+
+@{
+    ViewData["Title"] = "Métodos de Entrega";
+}
+
+<h1>Métodos de Entrega</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Crear Nuevo Método de Entrega</a>
+</p>
+
+<table class="table table-striped align-middle">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Costo</th>
+            <th>Pedidos</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (!Model.Any())
+    {
+        <tr>
+            <td colspan="4" class="text-center text-muted">No hay métodos de entrega registrados.</td>
+        </tr>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Nombre</td>
+                <td>@item.Costo.ToString("C")</td>
+                <td>@item.Pedidos.Count</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.IdMetodoEntrega" class="btn btn-info btn-sm">Detalles</a>
+                    <a asp-action="Edit" asp-route-id="@item.IdMetodoEntrega" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-action="Delete" asp-route-id="@item.IdMetodoEntrega" class="btn btn-danger btn-sm">Eliminar</a>
+                </td>
+            </tr>
+        }
+    }
+    </tbody>
+</table>

@@ -1,0 +1,81 @@
+@model E_COMMERCE_FuentesFacundo.Models.Entities.Producto
+@{
+    var mostrarAccionesAdmin = ViewData["ShowAdminActions"] as bool? == true && User.IsInRole("Administrador");
+    var descripcion = Model.Descripcion;
+    if (!string.IsNullOrWhiteSpace(descripcion) && descripcion.Length > 90)
+    {
+        descripcion = descripcion[..90] + "…";
+    }
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+<div class="card h-100 shadow-sm producto-card">
+    @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+    {
+        <img src="@Model.ImagenUrl" class="card-img-top" alt="@Model.Nombre" style="height: 200px; object-fit: cover;">
+    }
+    else
+    {
+        <img src="https://via.placeholder.com/300x200?text=Sin+Imagen" class="card-img-top" alt="@Model.Nombre" style="height: 200px; object-fit: cover;">
+    }
+    <div class="card-body d-flex flex-column">
+        <h5 class="card-title h6 mb-1">@Model.Nombre</h5>
+        <div class="text-muted small mb-2">@(Model.Categoria?.Nombre ?? "-")</div>
+        @if (!string.IsNullOrWhiteSpace(descripcion))
+        {
+            <p class="card-text small text-muted">@descripcion</p>
+        }
+        <div class="mt-auto">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold fs-5">$@Model.Precio.ToString("N2")</span>
+                @if (User.IsInRole("Administrador"))
+                {
+                    if (!Model.Activo)
+                    {
+                        <span class="badge bg-secondary">Inactivo</span>
+                    }
+                    else if (Model.Stock <= 0)
+                    {
+                        <span class="badge bg-danger">Sin stock</span>
+                    }
+                    else
+                    {
+                        <span class="small text-muted">Stock: @Model.Stock</span>
+                    }
+                }
+                else
+                {
+                    if (!Model.Activo)
+                    {
+                        <span class="badge bg-secondary">Inactivo</span>
+                    }
+                    else if (Model.Stock <= 0)
+                    {
+                        <span class="badge bg-danger">Sin stock</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">En stock</span>
+                    }
+                }
+            </div>
+            <div class="d-flex flex-wrap gap-1">
+                <a asp-controller="Productos" asp-action="Details" asp-route-id="@Model.IdProducto" class="btn btn-outline-secondary btn-sm">Ver detalles</a>
+                @if (Model.Activo && Model.Stock > 0)
+                {
+                    <form asp-controller="Carrito" asp-action="Add" method="post" class="d-inline">
+                        <input type="hidden" name="idProducto" value="@Model.IdProducto" />
+                        <input type="hidden" name="cantidad" value="1" />
+                        <input type="hidden" name="returnUrl" value="@returnUrl" />
+                        <button type="submit" class="btn btn-success btn-sm">Agregar al carrito</button>
+                    </form>
+                }
+                @if (mostrarAccionesAdmin)
+                {
+                    <a asp-controller="Productos" asp-action="Edit" asp-route-id="@Model.IdProducto" class="btn btn-warning btn-sm">Editar</a>
+                    <a asp-controller="Productos" asp-action="Delete" asp-route-id="@Model.IdProducto" class="btn btn-danger btn-sm">Eliminar</a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

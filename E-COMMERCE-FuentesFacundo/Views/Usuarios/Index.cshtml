@@ -1,0 +1,77 @@
+@model PaginatedList<UsuarioListaViewModel>
+
+@{
+    ViewData["Title"] = "Usuarios";
+
+    var paginacion = new PaginationViewModel
+    {
+        PageIndex = Model.PageIndex,
+        TotalPages = Model.TotalPages,
+        HasPreviousPage = Model.HasPreviousPage,
+        HasNextPage = Model.HasNextPage,
+        Action = "Index",
+        Controller = "Usuarios",
+        RouteValues = new Dictionary<string, string?>()
+    };
+}
+
+<h1>Usuarios</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay usuarios registrados.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Roles</th>
+                    <th>Pedidos</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var usuario in Model)
+            {
+                <tr>
+                    <td>@usuario.Nombre @usuario.Apellido</td>
+                    <td>@usuario.Email</td>
+                    <td>
+                        @if (usuario.Roles.Any())
+                        {
+                            @foreach (var rol in usuario.Roles)
+                            {
+                                <span class="badge bg-secondary me-1">@rol</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin roles</span>
+                        }
+                    </td>
+                    <td>@usuario.CantidadPedidos</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@usuario.Id" class="btn btn-warning btn-sm">Editar roles</a>
+                        <a asp-action="ResetPassword" asp-route-id="@usuario.Id" class="btn btn-outline-danger btn-sm">Resetear contraseña</a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <partial name="_Pagination" model="paginacion" />
+}

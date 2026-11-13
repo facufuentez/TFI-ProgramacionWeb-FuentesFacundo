@@ -1,0 +1,139 @@
+@model CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Finalizar compra";
+}
+
+<h1>Finalizar compra</h1>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (!Model.Direcciones.Any())
+{
+    <div class="alert alert-warning">
+        No tenés direcciones de envío activas.
+        <a asp-controller="Direcciones" asp-action="Create" class="alert-link">Agregá una dirección</a> para continuar.
+    </div>
+}
+
+@if (!Model.MetodosEntrega.Any())
+{
+    <div class="alert alert-warning">
+        No hay métodos de entrega configurados. Contactá al administrador.
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-7">
+        <h4>Productos</h4>
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>@item.Cantidad</td>
+                    <td>$@item.Precio.ToString("N2")</td>
+                    <td>$@item.Subtotal.ToString("N2")</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">Volver al carrito</a>
+    </div>
+
+    <div class="col-md-5">
+        <h4>Datos del pedido</h4>
+
+        <form asp-action="Checkout" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="IdDireccion" class="control-label">Dirección de envío</label>
+                <select asp-for="IdDireccion" asp-items="Model.Direcciones" class="form-select">
+                    <option value="">Seleccioná una dirección</option>
+                </select>
+                <span asp-validation-for="IdDireccion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="IdMetodoEntrega" class="control-label">Método de entrega</label>
+                <select asp-for="IdMetodoEntrega" id="IdMetodoEntrega" class="form-select">
+                    <option value="">Seleccioná un método</option>
+                    @foreach (var metodo in Model.MetodosEntrega)
+                    {
+                        <option value="@metodo.Id" data-costo="@metodo.Costo.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                            @metodo.Nombre ($@metodo.Costo.ToString("N2"))
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="IdMetodoEntrega" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="MetodoPago" class="control-label">Medio de pago</label>
+                <select asp-for="MetodoPago" asp-items="Model.MetodosPago" class="form-select">
+                    <option value="">Seleccioná un medio de pago</option>
+                </select>
+                <span asp-validation-for="MetodoPago" class="text-danger"></span>
+                <div class="form-text">
+                    Efectivo: pago contra entrega. Mercado Pago: ser�s redirigido a Mercado Pago para completar el pago.
+                </div>
+            </div>
+
+            <dl class="row">
+                <dt class="col-sm-7">Subtotal</dt>
+                <dd class="col-sm-5 text-end">$@Model.Subtotal.ToString("N2")</dd>
+                <dt class="col-sm-7">Envío</dt>
+                <dd class="col-sm-5 text-end">$<span id="costo-envio">@Model.CostoEnvio.ToString("N2")</span></dd>
+                <dt class="col-sm-7">Total</dt>
+                <dd class="col-sm-5 text-end fw-bold">$<span id="total">@Model.Total.ToString("N2")</span></dd>
+            </dl>
+
+            @if (Model.Direcciones.Any() && Model.MetodosEntrega.Any())
+            {
+                <button type="submit" class="btn btn-success w-100">Confirmar pedido</button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-success w-100" disabled>Confirmar pedido</button>
+            }
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        (function () {
+            const subtotal = @Model.Subtotal.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            const select = document.getElementById('IdMetodoEntrega');
+            if (!select) return;
+
+            function format(value) {
+                return value.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+
+            function updateTotals() {
+                const option = select.options[select.selectedIndex];
+                const costo = option && option.dataset.costo ? parseFloat(option.dataset.costo) : 0;
+                document.getElementById('costo-envio').textContent = format(costo);
+                document.getElementById('total').textContent = format(subtotal + costo);
+            }
+
+            select.addEventListener('change', updateTotals);
+            updateTotals();
+        })();
+    </script>
+}
