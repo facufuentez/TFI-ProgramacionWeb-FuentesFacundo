@@ -2,6 +2,9 @@
 # .NET / ASP.NET Core
 # ============================================================
 
+# Proyecto de pruebas
+/E-COMMERCE-FuentesFacundo.Tests/
+
 # Resultados de compilación
 [Bb]in/
 [Oo]bj/
