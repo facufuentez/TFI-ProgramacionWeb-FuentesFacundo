@@ -2,7 +2,6 @@
 
 Aplicación web de comercio electrónico desarrollada con **ASP.NET Core MVC (.NET 9)** para la venta de cigarrillos electrónicos y productos de vapeo. Incluye catálogo, carrito, checkout, gestión de pedidos, usuarios y roles, auditoría, reportes PDF, pago con **Mercado Pago** y un asistente virtual con **Google Gemini**.
 
-> El proyecto web real está en la carpeta `E-COMMERCE-FuentesFacundo/`. La solución `E-COMMERCE-FuentesFacundo.slnx` incluye solo ese proyecto; el proyecto de tests se ejecuta por separado.
 
 ---
 
@@ -1028,12 +1027,7 @@ Usar HTTPS y verificar que el sitio tenga SSL configurado.
 - No hay seed de productos, categorías ni métodos de entrega.
 - No hay integración de reembolsos desde la aplicación; solo se sincroniza el estado.
 - No hay localización; los textos están en español y los reportes PDF usan formato `es-AR`.
-- `MercadoPago:Environment` está en configuración pero no se utiliza.
-- La solución `.slnx` no incluye el proyecto de tests; hay que ejecutarlo por separado.
 - Las credenciales de publicación pueden quedar en archivos `.pubxml.user`; no deben compartirse.
 
 ---
 
-## Licencia
-
-Proyecto personal/académico de Facundo Fuentes. No se incluye un archivo de licencia explícito. Si se va a reutilizar o distribuir, agregar la licencia correspondiente.
